@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 //references:
 //https://catlikecoding.com/unity/tutorials/procedural-grid/
+//https://www.youtube.com/watch?v=_Ij24zRI9J0
 //lecture
 
 public class PGC_Mesh : MonoBehaviour
@@ -12,16 +14,21 @@ public class PGC_Mesh : MonoBehaviour
     private MeshRenderer meshRenderer;
     private MeshCollider meshCollider;
     private Rigidbody rb;
-    private MeshColliderCookingOptions meshColliderCookingOptions;
-
-    private float yVal;
-    public float offsetX;
-    public float offsetY;
 
     private Vector3[] vertices;
     public int xSize;
     public int ySize;
     private Mesh mesh;
+
+    public float divByZed = 10f;
+    public float height;
+    public float speed, scale;
+    private MeshColliderCookingOptions meshColliderCookingOptions;
+    private float yVal;
+    public float offsetX;
+    public float offsetY;
+
+    public Octave[] Octaves;
 
     private void Awake()
     {
@@ -34,40 +41,48 @@ public class PGC_Mesh : MonoBehaviour
 
         Generate();
         SpawnPrimitiveCube();
-
-        MeshWavePerls(5f, 5f);
-        newverts = new Vector3((xSize + 1) * (ySize + 1));
         
     }
 
-    private void Start()
-    {
-        Generate();
-        MeshWavePerls(5f, 5f);
-    }
 
     private void Update()
     {
-        MeshWavePerls(5f, 5f);
+        var vertices = mesh.vertices;
+        //Vector2[] uv = new Vector2[vertices.Length];
 
-        MeshWave();
+        for (int i = 0, y = 0; y <= ySize; y++)
+        {
+            for (int x = 0; x <= xSize; x++, i++)
+            {
+                var z = 0f;
+                for(int o = 0; o < Octaves.Length; o++)
+                {
+                    if(Octaves[o].alternate)
+                    {
+                        var perl = Mathf.PerlinNoise((x * Octaves[o].scale.x) / xSize, (y * Octaves[o].scale.y) / ySize) * Mathf.PI * 2f;
+                        z += Mathf.Cos(perl + Octaves[o].speed.magnitude * Time.time) * Octaves[o].height;
+                    }
+                }
+
+
+                vertices[i] = new Vector3(x, z, y);
+                //uv[i] = new Vector2((float)x / xSize, (float)y / ySize);
+            }
+        }
+
+        mesh.vertices = vertices;
+        //mesh.uv = uv;
+        mesh.RecalculateNormals();
     }
 
-    private void MeshWave()
-    {
 
-    }
-    private void MeshWavePerls()
-    {
-
-    }
 
     private void SpawnPrimitiveCube()
     {
         Rigidbody cubeRb;
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         WaitForSeconds wait = new WaitForSeconds(0.05f);
-        cube.transform.position = new Vector3(20, 20, 20);
+        cube.transform.position = new Vector3(1, 20, 1);
         cubeRb = cube.AddComponent<Rigidbody>();
         cubeRb.useGravity = true;
     }
@@ -90,7 +105,7 @@ public class PGC_Mesh : MonoBehaviour
         {
             for (int x = 0; x <= xSize; x++, i++)
             {
-                vertices[i] = new Vector3(x, y);
+                vertices[i] = new Vector3(x, 0, y);
                 uv[i] = new Vector2((float)x / xSize, (float)y / ySize);
             }
         }
@@ -133,4 +148,12 @@ public class PGC_Mesh : MonoBehaviour
         }
     }
 
+    [Serializable]
+    public struct Octave
+    {
+        public Vector2 speed;
+        public Vector2 scale;
+        public float height;
+        public bool alternate;
+    }
 }
