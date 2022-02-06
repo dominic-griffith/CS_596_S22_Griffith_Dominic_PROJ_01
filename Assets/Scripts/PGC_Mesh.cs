@@ -20,14 +20,6 @@ public class PGC_Mesh : MonoBehaviour
     public int ySize;
     private Mesh mesh;
 
-    public float divByZed = 10f;
-    public float height;
-    public float speed, scale;
-    private MeshColliderCookingOptions meshColliderCookingOptions;
-    private float yVal;
-    public float offsetX;
-    public float offsetY;
-
     public Octave[] Octaves;
 
     private void Awake()
@@ -72,7 +64,9 @@ public class PGC_Mesh : MonoBehaviour
 
         mesh.vertices = vertices;
         //mesh.uv = uv;
+
         mesh.RecalculateNormals();
+        meshCollider.sharedMesh = mesh;
     }
 
 
@@ -82,7 +76,7 @@ public class PGC_Mesh : MonoBehaviour
         Rigidbody cubeRb;
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         WaitForSeconds wait = new WaitForSeconds(0.05f);
-        cube.transform.position = new Vector3(1, 20, 1);
+        cube.transform.position = new Vector3(10, 20, 10);
         cubeRb = cube.AddComponent<Rigidbody>();
         cubeRb.useGravity = true;
     }
