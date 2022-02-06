@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   offsetX: 0
   offsetY: 0
-  xSize: 10
-  ySize: 10
+  xSize: 5
+  ySize: 2
 --- !u!4 &118754783
 Transform:
   m_ObjectHideFlags: 0
